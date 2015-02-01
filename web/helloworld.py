@@ -16,6 +16,7 @@ MAIN_PAGE_HTML = """\
 class Data(ndb.Model):
     ip = ndb.StringProperty(indexed=False);
     name = ndb.StringProperty(indexed=False);
+    date = ndb.DateTimeProperty(auto_now_add=True);
 
 
 class MainPage(webapp2.RequestHandler):
@@ -44,13 +45,14 @@ class SearchRecord(webapp2.RequestHandler):
         name = self.request.get('name');
 
         ndb_ip_addr = ndb.Key('IP_RECORD','record');
-        datas_query = Data.query(ancestor = ndb_ip_addr);
+        datas_query = Data.query(ancestor = ndb_ip_addr).order(-Data.date);
         datas = datas_query.fetch(10);
 
         for data in datas:
             if data.name == name:
                 ip = data.ip;
-                self.response.write('[' + ip +']\t' + name +'\n');
+                date = data.date;
+                self.response.write(str(date) + '\t[' + ip +']\t' + name +'\n');
 
 application = webapp2.WSGIApplication([
     ('/', MainPage),
